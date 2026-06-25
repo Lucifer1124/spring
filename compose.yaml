@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  webapp:
+    image: lucifer1124/springtest:${BUILD_NUMBER}
+    ports:
+      - "80:8080"
+    networks:
+      - app-net
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+networks:
+  app-net:
+    driver: overlay

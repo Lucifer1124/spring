@@ -4,8 +4,11 @@ Wire It Together in Jenkins
 
     Go to your Jenkins Dashboard and select New Item -> Pipeline. Name it hello-swarm-pipeline.
 
-    Under Credentials -> System -> Global credentials, click Add Credentials. Choose Username with password, fill in your Docker Hub credentials, and name the ID docker-hub-credentials-id.
+    Under Credentials -> System -> Global credentials, 
+    click Add Credentials. Choose Username with password, fill in your Docker Hub credentials, 
+    and name the ID docker-hub-credentials-id.
 
-    In your Pipeline job configuration, scroll down to Pipeline, change the definition to Pipeline script from SCM, choose Git, and provide your repository URL.
+    In your Pipeline job configuration, scroll down to Pipeline, 
+    change the definition to Pipeline script from SCM, choose Git, and provide your repository URL.
 
     Click Save and click Build Now.

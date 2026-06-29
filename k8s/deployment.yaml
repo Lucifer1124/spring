@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-deployment
+  labels:
+    app: springboot-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: springboot-app
+  template:
+    metadata:
+      labels:
+        app: springboot-app
+    spec:
+      containers:
+      - name: springboot-container
+        image: LUCIFER_IMAGE_PLACEHOLDER  # Updated dynamically by Jenkins
+        ports:
+        - containerPort: 8081             # Default Spring Boot Port
+        readinessProbe:
+          httpGet:
+            path: /actuator/health        # Optional: useful if Spring Boot Actuator is configured
+            port: 8081
+          initialDelaySeconds: 20
+          periodSeconds: 10

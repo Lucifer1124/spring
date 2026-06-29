@@ -2,9 +2,10 @@ pipeline {
     agent any
 
     environment {
-        // Replace with your Docker Hub username and repository name
+
         SONAR_TOKEN = credentials('sonar-auth-token')
-        IMAGE_NAME = 'lucifer1124/hello-swarm'
+        IMAGE_NAME = 'lucifer1124/springboot-k8s-app'
+        REGISTRY_CREDS = 'docker-cred' 
     }
 
     stages {
@@ -16,7 +17,8 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                // Compile and verify code locally before packaging into Docker
+                echo 'Compiling Spring Boot application....'
+
                 sh 'mvn clean test package -DskipTests'
             }
         }
@@ -24,10 +26,10 @@ pipeline {
         stage('Docker Build & Push') {
             steps {
                 script {
-                    // Build image using Jenkins' unique build number as tag
+                    echo 'Building image using scripted docker syntax...'
                     def customImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
 
-                    // Log into Docker Hub and push the image
+                    echo 'Logging in and pushing build tags to Docker Hub...'
                     docker.withRegistry('https://index.docker.io/v1/', "${REGISTRY_CREDS}") {
                         customImage.push()
                         customImage.push('latest')
@@ -36,22 +38,28 @@ pipeline {
             }
         }
 
-        stage('Deploy to Docker Swarm') {
+        stage('Deploy to Kubernetes') {
             steps {
-                // If Jenkins is running on the Swarm manager, it deploys directly.
-                // If it is remote, wrap this step using an SSH agent or context.
-                sh '''
-                    docker stack deploy -c docker-stack.yml hello_stack
-                '''
+                echo 'Executing rolling update to Kubernetes Cluster...'
+
+                withCredentials([file(credentialsId: 'k8s-config', variable: 'KUBECONFIG')]) {
+
+                    sh "sed -i 's|LUCIFER_IMAGE_PLACEHOLDER|${IMAGE_NAME}:${BUILD_NUMBER}|g' k8s/deployment.yaml"                 
+
+                    sh "kubectl apply -f k8s/deployment.yaml --kubeconfig=\$KUBECONFIG"
+                    sh "kubectl apply -f k8s/service.yaml --kubeconfig=\$KUBECONFIG"
+                    sh "kubectl rollout status deployment/springboot-deployment --kubeconfig=\$KUBECONFIG"
+                }
             }
         }
     }
 
     post {
         always {
-            // Clean up workspace and local image cache to prevent disk bloating
+            echo 'Executing cleanup post-actions...'
             cleanWs()
             sh "docker rmi ${IMAGE_NAME}:${BUILD_NUMBER} || true"
+            sh "docker rmi ${IMAGE_NAME}:latest || true"
         }
     }
 }

@@ -12,3 +12,31 @@ Wire It Together in Jenkins
     change the definition to Pipeline script from SCM, choose Git, and provide your repository URL.
 
     Click Save and click Build Now.
+After configuration when all the swarm int commands are pasted and joined then:-
+
+Verify Nodes (Manager Terminal)
+docker node ls
+
+Create a service:
+docker service create \
+--name spring-service \
+-p 8080:8080 \
+lucifer1124/spring-app:latest
+
+Check Running Services
+docker service ls
+
+Check Tasks
+docker service ps spring-service
+
+Check Nodes
+docker node ls
+
+Inspect the Service
+docker service inspect spring-service
+
+Scale the Application
+docker service scale spring-service=3
+
+Verify
+docker service ls

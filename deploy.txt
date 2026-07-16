@@ -1,0 +1,20 @@
+Pull latest image
+docker pull yourdockerhub/spring-app:latest
+
+Deploy application
+kubectl apply -f deployment.yaml
+
+Create service
+kubectl apply -f service.yaml
+
+Check pods
+kubectl get pods
+
+Check deployment
+kubectl get deployment
+
+Check service
+kubectl get service
+
+View everything
+kubectl get all
